@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Nostálgicas - Experiência Mágica</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        /* Impede que o usuário selecione textos ou veja o menu de clique direito */
+        body { margin: 0; overflow: hidden; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        
+        #ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; }
+        
+        button { padding: 15px 40px; font-size: 18px; font-weight: bold; background: #9b59b6; border: none; color: white; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4); transition: 0.3s; }
+        button:active { transform: scale(0.95); }
+        
+        .logo { margin-bottom: 20px; font-size: 24px; letter-spacing: 2px; }
+    </style>
+</head>
+<body oncontextmenu="return false;"> <div id="ui">
+        <div class="logo">NOSTÁLGICAS</div>
+        <p>Aponte para a foto e veja a mágica acontecer</p>
+        <button id="startButton">INICIAR EXPERIÊNCIA</button>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
+            <a-video src="#vid" width="1" height="0.56" position="0 0 0" rotation="0 0 0"></a-video>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const startButton = document.querySelector("#startButton");
+        const ui = document.querySelector("#ui");
+        const sceneEl = document.querySelector("a-scene");
+        const video = document.querySelector("#vid");
+        const targetEntity = document.querySelector("#target");
+
+        // Impede que segurem o dedo na tela para tentar baixar o vídeo no celular
+        window.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'VIDEO') e.preventDefault();
+        }, {passive: false});
+
+        startButton.addEventListener('click', () => {
+            ui.style.display = "none";
+            sceneEl.systems["mindar-image-system"].start();
+            video.play(); 
+            video.pause(); 
+        });
+
+        targetEntity.addEventListener("targetFound", () => { video.play(); });
+        targetEntity.addEventListener("targetLost", () => { video.pause(); });
+    </script>
+</body>
+</html>
