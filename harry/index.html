@@ -13,12 +13,10 @@
         
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         
-        /* 🚫 REMOVE BOTÃO DE VR E ELEMENTOS DO AFRAME */
-        .a-enter-vr, .a-enter-ar, .a-orientation-modal, .a-loader-title { 
-            display: none !important; 
-        }
+        /* 🚫 REMOVE BOTÃO DE VR */
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
 
-        /* TELA DE INÍCIO COM FOTO + FUNDO DE SEGURANÇA */
+        /* TELA DE INÍCIO COM A FOTO DE TEMA */
         #ui { 
             position: fixed; 
             inset: 0; 
@@ -31,22 +29,21 @@
             text-align: center; 
             padding: 20px;
 
-            /* 🎨 SEGURANÇA: Se a foto falhar, mostra o roxo da loja */
-            background-color: #2e1a47;
-            background-image: radial-gradient(circle at center, #2e1a47 0%, #000000 100%), url('./fundotema.png');
-            
-            background-repeat: no-repeat;
+            /* CONFIGURAÇÃO DA IMAGEM */
+            /* Certifique-se que o arquivo no GitHub se chama exatamente fundotema.jpg */
+            background-image: url('fundotema.png'); 
+            background-color: #2e1a47; /* Cor de fundo caso a imagem falhe */
             background-position: center center;
+            background-repeat: no-repeat;
             background-size: cover; 
-            background-blend-mode: overlay; /* Mistura a foto com o roxo se a foto existir */
         }
 
-        /* Camada para garantir leitura do texto sobre a foto */
-        #ui::before {
+        /* Camada escura para o texto não sumir na foto */
+        #ui::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5); 
+            background: rgba(0, 0, 0, 0.6); 
             z-index: -1;
         }
 
@@ -54,16 +51,18 @@
             max-width: 150px; 
             margin-bottom: 25px; 
             filter: drop-shadow(0 0 10px rgba(140, 82, 255, 0.5)); 
+            position: relative;
         }
 
         .instrucoes { 
-            background: rgba(255, 255, 255, 0.08); 
+            background: rgba(255, 255, 255, 0.1); 
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 30px; 
             border: 1px solid rgba(140, 82, 255, 0.4);
             max-width: 280px;
             backdrop-filter: blur(10px);
+            position: relative;
         }
 
         .passo { font-size: 14px; margin: 15px 0; display: flex; align-items: center; text-align: left; }
@@ -78,7 +77,6 @@
             justify-content: center; 
             font-weight: bold; 
             flex-shrink: 0;
-            box-shadow: 0 0 8px var(--cor-primaria);
         }
 
         button { 
@@ -91,12 +89,10 @@
             cursor: pointer; 
             font-weight: bold; 
             box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
-            transition: 0.3s;
+            position: relative;
         }
-        
-        button:active { transform: scale(0.95); }
 
-        /* Rodapé de Marketing */
+        /* Rodapé */
         #footer-ar { 
             position: fixed; 
             bottom: 30px; 
@@ -108,21 +104,17 @@
         }
         .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); margin-bottom: 6px; text-shadow: 0 0 10px #000; }
         .copy { font-size: 9px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; }
-
-        .a-canvas { z-index: 1; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
     <div id="ui">
-        <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
-        
+        <img src="./NOSTÁLGICAS.png" class="img-logo">
         <div class="instrucoes">
             <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
             <div class="passo"><span class="numero">2</span> Permita o uso da câmera</div>
             <div class="passo"><span class="numero">3</span> Aponte para o quadro e veja a mágica!</div>
         </div>
-
         <button id="startButton">INICIAR AGORA</button>
     </div>
 
@@ -132,7 +124,7 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false">
         
@@ -143,7 +135,7 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity id="target" mindar-image-target="targetIndex: 0">
-            <a-video src="#vid" width="1" height="1.78" position="0 0 0" material="shader: flat; transparent: true; opacity: 1;"></a-video>
+            <a-video src="#vid" width="1" height="1.78" position="0 0 0"></a-video>
         </a-entity>
     </a-scene>
 
@@ -157,26 +149,16 @@
         startButton.addEventListener('click', () => {
             ui.style.display = "none";
             footer.style.display = "block";
-            
             video.play().then(() => {
                 video.pause();
                 video.muted = false; 
                 sceneEl.systems["mindar-image-system"].start();
-            }).catch(e => {
-                sceneEl.systems["mindar-image-system"].start();
-            });
+            }).catch(() => sceneEl.systems["mindar-image-system"].start());
         });
 
         const targetEntity = document.querySelector("#target");
-        
-        targetEntity.addEventListener("targetFound", () => {
-            video.currentTime = 0; 
-            video.play();
-        });
-
-        targetEntity.addEventListener("targetLost", () => {
-            video.pause();
-        });
+        targetEntity.addEventListener("targetFound", () => { video.currentTime = 0; video.play(); });
+        targetEntity.addEventListener("targetLost", () => { video.pause(); });
     </script>
 </body>
 </html>
