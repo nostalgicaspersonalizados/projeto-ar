@@ -91,16 +91,28 @@
         const video = document.querySelector("#vid");
         const direitos = document.querySelector("#direitos-reservados");
 
-       startButton.addEventListener('click', () => {
-    ui.style.display = "none";
-    direitos.style.display = "block";
-    
-    // Inicia a câmera
-    sceneEl.systems["mindar-image-system"].start();
+        startButton.addEventListener('click', () => {
+            ui.style.display = "none";
+            direitos.style.display = "block";
+            
+            // Inicia a câmera
+            sceneEl.systems["mindar-image-system"].start();
 
-    // DESPERTA O VÍDEO (Crucial para não ficar preto)
-    video.play().then(() => {
-        video.pause(); // Dá o play e pause em milissegundos para o navegador "aceitar" o vídeo
-        video.muted = false; // Tira o mudo para o cliente ouvir quando o vídeo começar de verdade
-    }).catch(e => console.log("Erro ao despertar vídeo:", e));
-});
+            // DESPERTA O VÍDEO (Crucial para não ficar preto)
+            video.play().then(() => {
+                video.pause(); 
+                video.muted = false; 
+            }).catch(e => console.log("Erro ao despertar vídeo:", e));
+        });
+
+        // ESSA PARTE ABAIXO É A QUE FAZ O VÍDEO APARECER AO ESCANEAR
+        const targetEntity = document.querySelector("#target");
+        targetEntity.addEventListener("targetFound", () => {
+            video.play();
+        });
+        targetEntity.addEventListener("targetLost", () => {
+            video.pause();
+        });
+    </script>
+</body>
+</html>
