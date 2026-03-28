@@ -3,32 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Nostálgicas - Experiência</title>
+    <title>Nostálgicas - Experiência Mágica</title>
+    
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        #ui { position: fixed; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; font-family: sans-serif; }
-        .img-logo { max-width: 150px; margin-bottom: 20px; }
-        button { padding: 15px 40px; font-size: 18px; background: #8C52FF; color: #fff; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; }
-        #direitos-reservados { position: fixed; bottom: 10px; width: 100%; text-align: center; color: #fff; font-size: 10px; z-index: 999; opacity: 0.6; pointer-events: none; display: none; text-transform: uppercase; }
-        /* Garante que o canvas da RA não fique atrás de nada */
+        :root { --cor-primaria: #8C52FF; }
+        
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* 🚫 ESCONDE O BOTÃO DE VR */
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
+
+        /* CONTAINER PRINCIPAL DA TELA INICIAL */
+        #ui { 
+            position: fixed; 
+            inset: 0; 
+            z-index: 1000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: #fff; 
+            text-align: center; 
+            padding: 20px;
+            overflow: hidden; /* Garante que o blur não saia da borda */
+        }
+
+        /* ✨ O PULO DO GATO: BLOCO SÓ PARA O FUNDO DESFOCADO */
+        .fundo-desfocado {
+            position: absolute;
+            inset: 0;
+            z-index: -2; /* Fica atrás de tudo */
+            background-color: #2e1a47; /* Cor de segurança */
+            
+            /* CONFIGURAÇÃO DA IMAGEM */
+            background-image: url('./fundotema.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover; 
+            
+            /* APLICA O EFEITO BLUR (Mude 8px para mais ou menos desfoque) */
+            filter: blur(1px);
+            
+            /* Faz o fundo ficar um pouquinho maior para o blur não deixar bordas brancas */
+            transform: scale(1.1); 
+        }
+
+        /* Camada escura por cima da foto para dar leitura no texto */
+        #ui::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1; /* Fica entre o fundo desfocado e o conteúdo nítido */
+            background: rgba(0, 0, 0, 0.6); /* Escurece 60% da foto */
+        }
+
+        /* CONTEÚDO NÍTIDO (Logo, Instruções, Botão) */
+        .conteudo {
+            z-index: 1; /* Garante que fique por cima de todas as camadas do fundo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .img-logo { 
+            max-width: 150px; 
+            margin-bottom: 25px; 
+            filter: drop-shadow(0 0 10px rgba(140, 82, 255, 0.5)); 
+        }
+
+        .instrucoes { 
+            background: rgba(255, 255, 255, 0.07); 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 30px; 
+            border: 1px solid rgba(140, 82, 255, 0.4);
+            max-width: 280px;
+            backdrop-filter: blur(4px); /* Blur menor só na caixinha para efeito de vidro */
+        }
+
+        .passo { font-size: 14px; margin: 15px 0; display: flex; align-items: center; text-align: left; }
+        
+        .numero { 
+            background: var(--cor-primaria); 
+            width: 24px; height: 24px; 
+            border-radius: 50%; 
+            margin-right: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--cor-primaria);
+        }
+
+        button { 
+            padding: 16px 45px; 
+            font-size: 18px; 
+            background: var(--cor-primaria); 
+            color: #fff; 
+            border: none; 
+            border-radius: 35px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
+            transition: 0.3s;
+        }
+        
+        button:active { transform: scale(0.95); }
+
+        /* Rodapé de Marketing durane a RA */
+        #footer-ar { 
+            position: fixed; 
+            bottom: 30px; 
+            width: 100%; 
+            text-align: center; 
+            z-index: 999; 
+            display: none; 
+            pointer-events: none; 
+        }
+        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); margin-bottom: 6px; text-shadow: 0 0 10px #000; }
+        .copy { font-size: 9px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; }
+
         .a-canvas { z-index: 1; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div id="ui">
-        <img src="./NOSTÁLGICAS.png" class="img-logo">
-        <p>Aponte para a foto e veja a mágica!</p>
-        <button id="startButton">INICIAR AGORA</button>
+        <div class="fundo-desfocado"></div>
+        
+        <div class="conteudo">
+            <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
+            
+            <div class="instrucoes">
+                <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
+                <div class="passo"><span class="numero">2</span> Permita o uso da câmera</div>
+                <div class="passo"><span class="numero">3</span> Aponte para o objeto e veja a mágica!</div>
+            </div>
+
+            <button id="startButton">INICIAR AGORA</button>
+        </div>
     </div>
 
-    <div id="direitos-reservados">
-        © 2026 Nostálgicas Personalizados
+    <div id="footer-ar">
+        <div class="mkt">🎥 curtiu a mágica? Marque @nostalgicas.personalizados</div>
+        <div class="copy">© 2026 Nostálgicas Personalizados</div>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
         <a-assets>
             <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
@@ -44,30 +173,30 @@
         const startButton = document.querySelector("#startButton");
         const video = document.querySelector("#vid");
         const ui = document.querySelector("#ui");
+        const footer = document.querySelector("#footer-ar");
         const sceneEl = document.querySelector("a-scene");
 
         startButton.addEventListener('click', () => {
             ui.style.display = "none";
-            document.querySelector("#direitos-reservados").style.display = "block";
+            footer.style.display = "block";
             
-            // 1. Acorda o vídeo primeiro (essencial para iPhones)
             video.play().then(() => {
                 video.pause();
-                video.muted = false; // Tira o mudo para quando ele começar de fato
-                
-                // 2. Só depois inicia a câmera
+                video.muted = false; 
                 sceneEl.systems["mindar-image-system"].start();
             }).catch(e => {
-                console.log("Erro ao despertar vídeo, tentando câmera direto.");
+                console.log("Erro ao despertar mídia:", e);
                 sceneEl.systems["mindar-image-system"].start();
             });
         });
 
         const targetEntity = document.querySelector("#target");
+        
         targetEntity.addEventListener("targetFound", () => {
-            video.currentTime = 0; // Reinicia o vídeo para dar impacto
+            video.currentTime = 0; 
             video.play();
         });
+
         targetEntity.addEventListener("targetLost", () => {
             video.pause();
         });
