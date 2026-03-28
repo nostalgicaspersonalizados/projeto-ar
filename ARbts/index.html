@@ -19,7 +19,7 @@
         
         #ui { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(180deg, #1a1a1a 0%, #300870 100%);
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
             z-index: 1000; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; padding: 20px; text-align: center;
         }
@@ -69,15 +69,22 @@
         </a-entity>
     </a-scene>
 
+    <div id="direitos-reservados" style="display: none; position: fixed; bottom: 15px; width: 100%; text-align: center; color: white; font-size: 10px; z-index: 999; opacity: 0.5; pointer-events: none; text-transform: uppercase;">
+        © 2026 Nostálgicas Personalizados - Todos os direitos reservados
+    </div>
+
     <script>
         /* AQUI É O JAVASCRIPT - O CÉREBRO DA MÁGICA */
         const startButton = document.querySelector("#startButton");
         const ui = document.querySelector("#ui");
         const sceneEl = document.querySelector("a-scene");
         const video = document.querySelector("#vid");
+        const direitos = document.querySelector("#direitos-reservados"); // 2. AVISAMOS O SCRIPT QUE A FRASE EXISTE
 
         startButton.addEventListener('click', () => {
             ui.style.display = "none";
+            direitos.style.display = "block"; // 3. MANDAMOS A FRASE APARECER JUNTO COM A CÂMERA
+            
             sceneEl.systems["mindar-image-system"].start();
             video.play(); video.pause(); 
         });
