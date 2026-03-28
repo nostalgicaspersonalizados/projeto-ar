@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Nostálgicas - Experiência Mágica</title>
+    
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
     <style>
         :root { --cor-primaria: #8C52FF; }
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         
-        /* Tela de Início com as Instruções */
+        /* TELA DE INÍCIO (Onde ficam as instruções) */
         #ui { 
             position: fixed; inset: 0; z-index: 1000; background: #000; 
             display: flex; flex-direction: column; align-items: center; 
@@ -40,7 +42,7 @@
             box-shadow: 0 0 15px rgba(140, 82, 255, 0.4);
         }
 
-        /* Rodapé que aparece durante a RA */
+        /* RODAPÉ (Aparece depois que a câmera inicia) */
         #footer-ar { 
             position: fixed; bottom: 15px; width: 100%; text-align: center; 
             color: #fff; z-index: 999; display: none; pointer-events: none; 
@@ -54,7 +56,7 @@
 <body oncontextmenu="return false;">
 
     <div id="ui">
-        <img src="./NOSTÁLGICAS.png" class="img-logo">
+        <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
         
         <div class="instrucoes">
             <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
@@ -94,15 +96,16 @@
         const sceneEl = document.querySelector("a-scene");
 
         startButton.addEventListener('click', () => {
+            // Esconde as instruções e mostra o rodapé
             ui.style.display = "none";
             footer.style.display = "block";
             
-            // Força o vídeo a carregar e tira o mudo para o som sair
+            // "Acorda" o vídeo para o navegador liberar o áudio e imagem
             video.play().then(() => {
                 video.pause();
-                video.muted = false;
+                video.muted = false; // Som habilitado
                 
-                // Inicia a RA
+                // Inicia o sistema de Realidade Aumentada
                 sceneEl.systems["mindar-image-system"].start();
             }).catch(e => {
                 console.log("Erro ao despertar vídeo:", e);
@@ -113,7 +116,7 @@
         const targetEntity = document.querySelector("#target");
         
         targetEntity.addEventListener("targetFound", () => {
-            video.currentTime = 0; // Reinicia para dar o impacto do BTS começando
+            video.currentTime = 0; // Reinicia o BTS sempre que focar
             video.play();
         });
 
