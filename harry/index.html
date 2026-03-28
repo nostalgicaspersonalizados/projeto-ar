@@ -13,10 +13,12 @@
         
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         
-        /* 🚫 ESCONDE O BOTÃO DE VR QUE ATRAPALHA O RODAPÉ */
-        .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
+        /* 🚫 REMOVE BOTÃO DE VR E ELEMENTOS DO AFRAME */
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal, .a-loader-title { 
+            display: none !important; 
+        }
 
-        /* CONFIGURAÇÃO DO FUNDO COM FOTO */
+        /* TELA DE INÍCIO COM FOTO + FUNDO DE SEGURANÇA */
         #ui { 
             position: fixed; 
             inset: 0; 
@@ -28,16 +30,23 @@
             color: #fff; 
             text-align: center; 
             padding: 20px;
-            background: url('./fundotema.png') no-repeat center center;
+
+            /* 🎨 SEGURANÇA: Se a foto falhar, mostra o roxo da loja */
+            background-color: #2e1a47;
+            background-image: radial-gradient(circle at center, #2e1a47 0%, #000000 100%), url('./fundotema.png');
+            
+            background-repeat: no-repeat;
+            background-position: center center;
             background-size: cover; 
+            background-blend-mode: overlay; /* Mistura a foto com o roxo se a foto existir */
         }
 
-        /* Camada escura para dar leitura na foto */
+        /* Camada para garantir leitura do texto sobre a foto */
         #ui::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6); 
+            background: rgba(0, 0, 0, 0.5); 
             z-index: -1;
         }
 
@@ -48,13 +57,13 @@
         }
 
         .instrucoes { 
-            background: rgba(255, 255, 255, 0.07); 
+            background: rgba(255, 255, 255, 0.08); 
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 30px; 
             border: 1px solid rgba(140, 82, 255, 0.4);
             max-width: 280px;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
         }
 
         .passo { font-size: 14px; margin: 15px 0; display: flex; align-items: center; text-align: left; }
@@ -82,31 +91,38 @@
             cursor: pointer; 
             font-weight: bold; 
             box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
+            transition: 0.3s;
         }
+        
+        button:active { transform: scale(0.95); }
 
         /* Rodapé de Marketing */
         #footer-ar { 
             position: fixed; 
-            bottom: 25px; /* Aumentei um pouquinho para não bater na borda da tela */
+            bottom: 30px; 
             width: 100%; 
             text-align: center; 
             z-index: 999; 
             display: none; 
             pointer-events: none; 
         }
-        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); margin-bottom: 6px; text-shadow: 0 0 8px #000; }
-        .copy { font-size: 9px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px; }
+        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); margin-bottom: 6px; text-shadow: 0 0 10px #000; }
+        .copy { font-size: 9px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; }
+
+        .a-canvas { z-index: 1; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="ui">
-        <img src="./NOSTÁLGICAS.png" class="img-logo">
+        <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
+        
         <div class="instrucoes">
-            <div class="passo"><span class="numero">1</span> Clique no botão para começar</div>
+            <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
             <div class="passo"><span class="numero">2</span> Permita o uso da câmera</div>
             <div class="passo"><span class="numero">3</span> Aponte para o quadro e veja a mágica!</div>
         </div>
+
         <button id="startButton">INICIAR AGORA</button>
     </div>
 
@@ -152,10 +168,12 @@
         });
 
         const targetEntity = document.querySelector("#target");
+        
         targetEntity.addEventListener("targetFound", () => {
             video.currentTime = 0; 
             video.play();
         });
+
         targetEntity.addEventListener("targetLost", () => {
             video.pause();
         });
