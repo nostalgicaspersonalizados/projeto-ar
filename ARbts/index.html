@@ -13,13 +13,17 @@
         
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         
-        /* ============================================================
-           👇 CONFIGURAÇÃO DO FUNDO (TEMA DA LOJA) 👇
-           ============================================================ */
+        /* 🚫 REMOVE O BOTÃO DE VR E ELEMENTOS QUE ATRAPALHAM O RODAPÉ */
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal, .a-loader-title { 
+            display: none !important; 
+        }
+
+        /* TELA DE INÍCIO COM DEGRADÊ ROXO (TEMA DA LOJA) */
         #ui { 
             position: fixed; 
             inset: 0; 
             z-index: 1000; 
+            background: radial-gradient(circle at center, #2e1a47 0%, #000000 100%);
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -27,29 +31,7 @@
             color: #fff; 
             text-align: center; 
             padding: 20px;
-
-            /* 🎨 OPÇÃO A: DEGRADÊ ROXO (ATIVO) */
-            background: radial-gradient(circle at center, #2e1a47 0%, #000000 100%);
-            
-            /* 📸 OPÇÃO B: FOTO (DESATIVADO) 
-               Para usar foto: remova o '/*' e '*/' abaixo e suba o arquivo 'fundo-tema.jpg'
-            */
-            /*
-            background: url('./fundo-tema.jpg') no-repeat center center;
-            background-size: cover; 
-            */
         }
-
-        /* Camada escura para dar leitura se usar FOTO (Opção B) */
-        #ui::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6); 
-            z-index: -1;
-            display: none; /* Mude para 'block' se usar foto */
-        }
-        /* ============================================================ */
 
         .img-logo { 
             max-width: 150px; 
@@ -97,10 +79,10 @@
         
         button:active { transform: scale(0.95); }
 
-        /* Rodapé de Marketing que aparece na RA */
+        /* Rodapé de Marketing (Ajustado para não ficar colado no fundo) */
         #footer-ar { 
             position: fixed; 
-            bottom: 20px; 
+            bottom: 30px; 
             width: 100%; 
             text-align: center; 
             z-index: 999; 
@@ -159,12 +141,9 @@
             ui.style.display = "none";
             footer.style.display = "block";
             
-            // "Acorda" o vídeo para o navegador liberar áudio/imagem
             video.play().then(() => {
                 video.pause();
                 video.muted = false; 
-                
-                // Inicia o motor de Realidade Aumentada
                 sceneEl.systems["mindar-image-system"].start();
             }).catch(e => {
                 console.log("Erro ao despertar mídia:", e);
