@@ -74,7 +74,7 @@
         device-orientation-permission-ui="enabled: false">
         
         <a-assets>
-            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+          <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -91,27 +91,16 @@
         const video = document.querySelector("#vid");
         const direitos = document.querySelector("#direitos-reservados");
 
-        startButton.addEventListener('click', () => {
-            ui.style.display = "none";
-            direitos.style.display = "block"; 
-            
-            // Truque para desbloquear o áudio/vídeo no celular
-            video.load();
-            video.play();
-            setTimeout(() => { video.pause(); }, 100);
+       startButton.addEventListener('click', () => {
+    ui.style.display = "none";
+    direitos.style.display = "block";
+    
+    // Inicia a câmera
+    sceneEl.systems["mindar-image-system"].start();
 
-            sceneEl.systems["mindar-image-system"].start();
-        });
-
-        const targetEntity = document.querySelector("#target");
-        
-        targetEntity.addEventListener("targetFound", () => {
-            video.play();
-        });
-
-        targetEntity.addEventListener("targetLost", () => {
-            video.pause();
-        });
-    </script>
-</body>
-</html>
+    // DESPERTA O VÍDEO (Crucial para não ficar preto)
+    video.play().then(() => {
+        video.pause(); // Dá o play e pause em milissegundos para o navegador "aceitar" o vídeo
+        video.muted = false; // Tira o mudo para o cliente ouvir quando o vídeo começar de verdade
+    }).catch(e => console.log("Erro ao despertar vídeo:", e));
+});
