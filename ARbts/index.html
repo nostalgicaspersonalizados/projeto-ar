@@ -9,13 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        /* AQUI É O CSS - O ACABAMENTO DO QUADRO */
         :root {
-            --cor-primaria: #8C52FF; /* Cor da sua marca */
-            --cor-fundo: #8c52ff;
+            --cor-primaria: #8C52FF; 
+            --cor-fundo: #000000;
         }
 
-        body { margin: 0; overflow: hidden; font-family: sans-serif; background-color: var(--cor-fundo); color: white; }
+        body { margin: 0; overflow: hidden; font-family: sans-serif; background-color: #000; color: white; }
         
         #ui { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -24,11 +23,10 @@
             align-items: center; justify-content: center; padding: 20px; text-align: center;
         }
 
-        /* Ajuste da sua Logotipo */
         .img-logo { max-width: 150px; height: auto; margin-bottom: 25px; }
 
-        .instrucoes { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(155, 89, 182, 0.2); }
-        .passo { font-size: 14px; margin: 10px 0; display: flex; align-items: center; }
+        .instrucoes { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(140, 82, 255, 0.3); }
+        .passo { font-size: 14px; margin: 10px 0; display: flex; align-items: center; text-align: left; }
         .numero { background: var(--cor-primaria); padding: 5px 10px; border-radius: 50%; margin-right: 10px; font-weight: bold; }
 
         button { 
@@ -42,13 +40,18 @@
             50% { transform: scale(1.05); box-shadow: 0 0 20px var(--cor-primaria); }
             100% { transform: scale(1); }
         }
+
+        #direitos-reservados {
+            position: fixed; bottom: 15px; width: 100%; text-align: center; 
+            color: white; font-size: 10px; z-index: 9999; opacity: 0.7; 
+            pointer-events: none; text-transform: uppercase; letter-spacing: 1px;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="ui">
-        <img src="./NOSTÁLGICAS.png
-        " class="img-logo" alt="Nostálgicas Personalizados">
+        <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
         
         <div class="instrucoes">
             <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
@@ -57,6 +60,10 @@
         </div>
 
         <button id="startButton">INICIAR EXPERIÊNCIA</button>
+    </div>
+
+    <div id="direitos-reservados" style="display: none;">
+        © 2026 Nostálgicas Personalizados - Todos os direitos reservados
     </div>
 
     <a-scene 
@@ -77,28 +84,34 @@
         </a-entity>
     </a-scene>
 
-    <div id="direitos-reservados" style="display: none; position: fixed; bottom: 15px; width: 100%; text-align: center; color: white; font-size: 10px; z-index: 999; opacity: 0.5; pointer-events: none; text-transform: uppercase;">
-        © 2026 Nostálgicas Personalizados - Todos os direitos reservados
-    </div>
-
     <script>
-        /* AQUI É O JAVASCRIPT - O CÉREBRO DA MÁGICA */
         const startButton = document.querySelector("#startButton");
         const ui = document.querySelector("#ui");
         const sceneEl = document.querySelector("a-scene");
         const video = document.querySelector("#vid");
-        const direitos = document.querySelector("#direitos-reservados"); // 2. AVISAMOS O SCRIPT QUE A FRASE EXISTE
+        const direitos = document.querySelector("#direitos-reservados");
 
         startButton.addEventListener('click', () => {
             ui.style.display = "none";
-            direitos.style.display = "block"; // 3. MANDAMOS A FRASE APARECER JUNTO COM A CÂMERA
+            direitos.style.display = "block"; 
             
+            // Truque para desbloquear o áudio/vídeo no celular
+            video.load();
+            video.play();
+            setTimeout(() => { video.pause(); }, 100);
+
             sceneEl.systems["mindar-image-system"].start();
-            video.play(); video.pause(); 
         });
 
-        document.querySelector("#target").addEventListener("targetFound", () => video.play());
-        document.querySelector("#target").addEventListener("targetLost", () => video.pause());
+        const targetEntity = document.querySelector("#target");
+        
+        targetEntity.addEventListener("targetFound", () => {
+            video.play();
+        });
+
+        targetEntity.addEventListener("targetLost", () => {
+            video.pause();
+        });
     </script>
 </body>
 </html>
