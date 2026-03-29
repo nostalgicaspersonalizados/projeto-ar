@@ -2,204 +2,197 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Nostálgicas - Experiência Mágica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostálgicas Studio - Preview 3D Pro</title>
     
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     
     <style>
-        :root { --cor-primaria: #8C52FF; }
-        
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
-        
-        /* 🚫 ESCONDE O BOTÃO DE VR */
-        .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
-
-        /* CONTAINER PRINCIPAL DA TELA INICIAL */
-        #ui { 
-            position: fixed; 
-            inset: 0; 
-            z-index: 1000; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            color: #fff; 
-            text-align: center; 
-            padding: 20px;
-            overflow: hidden; /* Garante que o blur não saia da borda */
-        }
-
-        /* ✨ O PULO DO GATO: BLOCO SÓ PARA O FUNDO DESFOCADO */
-        .fundo-desfocado {
-            position: absolute;
-            inset: 0;
-            z-index: -2; /* Fica atrás de tudo */
-            background-color: #2e1a47; /* Cor de segurança */
-            
-            /* CONFIGURAÇÃO DA IMAGEM */
-            background-image: url('./fundotema.png');
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-size: cover; 
-            
-            /* APLICA O EFEITO BLUR (Mude 8px para mais ou menos desfoque) */
-            filter: blur(1px);
-            
-            /* Faz o fundo ficar um pouquinho maior para o blur não deixar bordas brancas */
-            transform: scale(1.1); 
-        }
-
-        /* Camada escura por cima da foto para dar leitura no texto */
-        #ui::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1; /* Fica entre o fundo desfocado e o conteúdo nítido */
-            background: rgba(0, 0, 0, 0.6); /* Escurece 60% da foto */
-        }
-
-        /* CONTEÚDO NÍTIDO (Logo, Instruções, Botão) */
-        .conteudo {
-            z-index: 1; /* Garante que fique por cima de todas as camadas do fundo */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .img-logo { 
-            max-width: 200px; 
-            margin-bottom: 25px; 
-            filter: drop-shadow(0 0 10px rgba(140, 82, 255, 0.5)); 
-        }
-
-        .instrucoes { 
-            background: rgba(255, 255, 255, 0.07); 
-            padding: 20px; 
-            border-radius: 20px; 
-            margin-bottom: 30px; 
-            border: 1px solid rgba(140, 82, 255, 0.4);
-            max-width: 280px;
-            backdrop-filter: blur(4px); /* Blur menor só na caixinha para efeito de vidro */
-        }
-
-        .passo { font-size: 18px; margin: 18px 0; display: flex; align-items: center; text-align: left; }
-        
-        .numero { 
-            background: var(--cor-primaria); 
-            width: 24px; height: 24px; 
-            border-radius: 50%; 
-            margin-right: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            flex-shrink: 0;
-            box-shadow: 0 0 8px var(--cor-primaria);
-        }
-
-        button { 
-            padding: 16px 45px; 
-            font-size: 18px; 
-            background: var(--cor-primaria); 
-            color: #fff; 
-            border: none; 
-            border-radius: 35px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
-            transition: 0.3s;
-        }
-        
-        button:active { transform: scale(0.95); }
-
-        /* Rodapé de Marketing durane a RA */
-        #footer-ar { 
-            position: fixed; 
-            bottom: 30px; 
-            width: 100%; 
-            text-align: center; 
-            z-index: 999; 
-            display: none; 
-            pointer-events: none; 
-        }
-        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); margin-bottom: 6px; text-shadow: 0 0 10px #000; }
-        .copy { font-size: 9px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; }
-
-        .a-canvas { z-index: 1; }
+        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; background: #000; overflow: hidden; }
+        #render-3d { flex: 1; background: #ffffff; position: relative; }
+        #sidebar { width: 340px; background: #111; padding: 20px; color: #fff; border-left: 1px solid #444; }
+        .canvas-area { background: #fff; margin-bottom: 15px; border: 2px solid #2ecc71; line-height: 0; }
+        .btn { width: 100%; padding: 12px; margin-bottom: 8px; cursor: pointer; font-weight: bold; border: none; text-transform: uppercase; border-radius: 4px; }
+        #status-bar { position: absolute; top: 10px; left: 10px; color: #000; font-weight: bold; background: #ffff00; padding: 8px; z-index: 999; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        input[type="range"] { width: 100%; accent-color: #2ecc71; margin-bottom: 15px; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div id="ui">
-        <div class="fundo-desfocado"></div>
-        
-        <div class="conteudo">
-            <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas Personalizados">
-            
-            <div class="instrucoes">
-                <div class="passo"><span class="numero">1</span> Clique no botão abaixo</div>
-                <div class="passo"><span class="numero">2</span> Permita o uso da câmera</div>
-                <div class="passo"><span class="numero">3</span> Aponte para o objeto e veja a mágica!</div>
-            </div>
+<div id="render-3d">
+    <div id="status-bar">STATUS: AGUARDANDO ARQUIVO...</div>
+</div>
 
-            <button id="startButton">INICIAR AGORA</button>
-        </div>
+<aside id="sidebar">
+    <h3 style="color: #2ecc71; margin-top: 0;">NOSTÁLGICAS STUDIO</h3>
+    <div class="canvas-area">
+        <canvas id="canvas2d" width="450" height="190" style="width: 100%;"></canvas>
     </div>
-
-    <div id="footer-ar">
-        <div class="mkt">🎥 curtiu a mágica? Marque @nostalgicas.personalizados</div>
-        <div class="copy">© 2026 Nostálgicas Personalizados</div>
+    
+    <input type="file" id="up-img" style="display:none" accept="image/*">
+    <button class="btn" style="background:#444; color:#fff" onclick="document.getElementById('up-img').click()">Inserir Arte (22.5x9.5)</button>
+    <button class="btn" style="background:#2ecc71; color:#fff" onclick="takePhoto()">Salvar Foto para Cliente</button>
+    
+    <div style="margin-top:20px; border-top: 1px solid #333; padding-top: 10px;">
+        <label style="font-size:10px; color:#aaa; display:block; margin-bottom:5px;">GIRAR CANECA / ESTAMPA</label>
+        <input type="range" id="rot" min="-0.5" max="0.5" step="0.001" value="0">
     </div>
+</aside>
 
-    <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
+<script>
+    const statusBar = document.getElementById('status-bar');
+
+    // --- 1. CONFIGURAÇÃO DO EDITOR 2D (FABRIC) ---
+    const fCanvas = new fabric.Canvas('canvas2d', { backgroundColor: '#ffffff' });
+    fCanvas.on('after:render', () => { if(texture3d) texture3d.needsUpdate = true; });
+
+    // --- 2. CONFIGURAÇÃO DO AMBIENTE 3D (THREE.JS) ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+    
+    const container = document.getElementById('render-3d');
+    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.01, 5000);
+    camera.position.set(0, 0, 10); // Posição inicial segura
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.outputEncoding = THREE.sRGBEncoding; // Melhora as cores do GLB
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Iluminação Profissional de Estúdio
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    scene.add(ambientLight);
+
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight1.position.set(5, 5, 5);
+    scene.add(directionalLight1);
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight2.position.set(-5, 2, -5);
+    scene.add(directionalLight2);
+
+    // --- 3. TEXTURA DA ESTAMPA ---
+    const texture3d = new THREE.CanvasTexture(fCanvas.getElement());
+    texture3d.encoding = THREE.sRGBEncoding;
+    texture3d.wrapS = THREE.RepeatWrapping;
+
+    // --- 4. CARREGAMENTO E AUTO-ZOOM DO ARQUIVO MUG.GLB ---
+    const loader = new GLTFLoader();
+    
+    statusBar.innerText = "STATUS: PROCURANDO 'MUG.GLB'...";
+
+    // Tenta carregar o arquivo na mesma pasta
+    loader.load('./mug.glb', function(gltf) {
+        statusBar.innerText = "STATUS: CANECA OK! APLICANDO AUTO-ZOOM...";
+        statusBar.style.background = "#00ff00";
         
-        <a-assets>
-            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
-        </a-assets>
-
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <a-entity id="target" mindar-image-target="targetIndex: 0">
-            <a-video src="#vid" width="1" height="1.78" position="0 0 0" material="shader: flat; transparent: true; opacity: 1;"></a-video>
-        </a-entity>
-    </a-scene>
-
-    <script>
-        const startButton = document.querySelector("#startButton");
-        const video = document.querySelector("#vid");
-        const ui = document.querySelector("#ui");
-        const footer = document.querySelector("#footer-ar");
-        const sceneEl = document.querySelector("a-scene");
-
-        startButton.addEventListener('click', () => {
-            ui.style.display = "none";
-            footer.style.display = "block";
-            
-            video.play().then(() => {
-                video.pause();
-                video.muted = false; 
-                sceneEl.systems["mindar-image-system"].start();
-            }).catch(e => {
-                console.log("Erro ao despertar mídia:", e);
-                sceneEl.systems["mindar-image-system"].start();
-            });
-        });
-
-        const targetEntity = document.querySelector("#target");
+        const model = gltf.scene;
         
-        targetEntity.addEventListener("targetFound", () => {
-            video.currentTime = 0; 
-            video.play();
+        model.traverse((child) => {
+            if (child.isMesh) {
+                // Aplicamos um material compatível com GLB
+                child.material = new THREE.MeshStandardMaterial({
+                    map: texture3d,
+                    color: 0xffffff,
+                    metalness: 0.1,
+                    roughness: 0.4,
+                    side: THREE.FrontSide // Arte só do lado de fora
+                });
+            }
         });
+        
+        // --- FUNÇÃO DE AUTO-ZOOM DEFINTIVA ---
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
 
-        targetEntity.addEventListener("targetLost", () => {
-            video.pause();
+        // Centralizar o modelo
+        model.position.sub(center);
+        
+        // Encontrar a maior dimensão do objeto
+        const maxDim = Math.max(size.x, size.y, size.z);
+        
+        // Calcular a distância ideal da câmera com base no tamanho do objeto
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraZ = Math.abs(maxDim / 2 * Math.tan(fov * 2)); // Dobro da distância da face
+
+        // Compensar se a caneca for muito fina (como uma folha de papel)
+        cameraZ *= 2.5; 
+
+        // Definir a nova posição da câmera para enquadrar a caneca
+        camera.position.z = cameraZ;
+        camera.position.y = maxDim / 4; // Levanta um pouco a câmera
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        
+        // Ajustar os controles para girar em torno do centro correto
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        scene.add(model);
+        console.log("Caneca carregada e enquadrada. Tamanho detectado: ", size);
+    }, 
+    (xhr) => {
+        if (xhr.total > 0) {
+            statusBar.innerText = "BAIXANDO: " + Math.round((xhr.loaded / xhr.total * 100)) + "%";
+        }
+    }, 
+    function(err) {
+        console.error(err);
+        statusBar.innerText = "ERRO: O ARQUIVO 'MUG.GLB' NÃO FOI ENCONTRADO!";
+        statusBar.style.background = "#ff0000";
+        statusBar.style.color = "#fff";
+    });
+
+    // --- 5. FUNÇÕES DE INTERAÇÃO DA NOSTÁLGICAS STUDIO ---
+    document.getElementById('up-img').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (f) => fabric.Image.fromURL(f.target.result, (img) => {
+            // Ajusta a imagem para caber no canvas de 22.5x9.5
+            if(img.width > img.height) {
+                img.scaleToWidth(250);
+            } else {
+                img.scaleToHeight(150);
+            }
+            fCanvas.add(img).centerObject(img);
         });
-    </script>
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    window.takePhoto = () => {
+        fCanvas.discardActiveObject(); fCanvas.renderAll();
+        setTimeout(() => {
+            const a = document.createElement('a');
+            a.download = 'Mockup_Nostalgicas.png';
+            a.href = renderer.domElement.toDataURL();
+            a.click();
+        }, 150);
+    };
+
+    document.getElementById('rot').oninput = (e) => {
+        // Giramos a textura horizontalmente para posicionar a estampa
+        texture3d.offset.x = parseFloat(e.target.value);
+    };
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Redimensionamento Automático
+    window.onresize = () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    };
+</script>
 </body>
 </html>
