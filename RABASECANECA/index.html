@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Nostálgicas - Experiência Mágica</title>
+    
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        :root { --cor-primaria: #8C52FF; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
+
+        #ui { 
+            position: fixed; inset: 0; z-index: 1000; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; color: #fff; text-align: center; 
+            padding: 20px; overflow: hidden;
+        }
+
+        .fundo-desfocado {
+            position: absolute; inset: 0; z-index: -2; 
+            background-color: #2e1a47;
+            background-image: url('./fundotema.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover; 
+            filter: blur(8px);
+            transform: scale(1.1); 
+        }
+
+        #ui::before {
+            content: ""; position: absolute; inset: 0; 
+            z-index: -1; background: rgba(0, 0, 0, 0.7);
+        }
+
+        .conteudo { z-index: 1; display: flex; flex-direction: column; align-items: center; }
+        .img-logo { max-width: 200px; margin-bottom: 25px; filter: drop-shadow(0 0 10px rgba(140, 82, 255, 0.5)); }
+
+        .instrucoes { 
+            background: rgba(255, 255, 255, 0.07); padding: 20px; 
+            border-radius: 20px; margin-bottom: 30px; 
+            border: 1px solid rgba(140, 82, 255, 0.4);
+            max-width: 280px; backdrop-filter: blur(4px);
+        }
+
+        .passo { font-size: 16px; margin: 12px 0; display: flex; align-items: center; text-align: left; }
+        .numero { 
+            background: var(--cor-primaria); width: 22px; height: 22px; 
+            border-radius: 50%; margin-right: 12px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 12px; flex-shrink: 0;
+        }
+
+        button { 
+            padding: 16px 45px; font-size: 18px; 
+            background: var(--cor-primaria); color: #fff; 
+            border: none; border-radius: 35px; cursor: pointer; 
+            font-weight: bold; box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
+        }
+
+        #footer-ar { 
+            position: fixed; bottom: 30px; width: 100%; 
+            text-align: center; z-index: 999; display: none; 
+        }
+        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); text-shadow: 0 0 10px #000; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="ui">
+        <div class="fundo-desfocado"></div>
+        <div class="conteudo">
+            <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas">
+            <div class="instrucoes">
+                <div class="passo"><span class="numero">1</span> Clique em Iniciar</div>
+                <div class="passo"><span class="numero">2</span> Permita a câmera</div>
+                <div class="passo"><span class="numero">3</span> Aponte para a caneca</div>
+            </div>
+            <button id="startButton">INICIAR AGORA</button>
+        </div>
+    </div>
+
+    <div id="footer-ar">
+        <div class="mkt">🎥 Marque @nostalgicas.personalizados</div>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
+            <a-entity 
+                geometry="primitive: cylinder; radius: 0.52; height: 1.05; thetaLength: 100; openEnded: true"
+                material="src: #vid; side: double; shader: flat; transparent: true;"
+                rotation="90 180 0" 
+                position="0 0 0.01"
+                scale="1 1 1">
+            </a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const startButton = document.querySelector("#startButton");
+        const video = document.querySelector("#vid");
+        const ui = document.querySelector("#ui");
+        const footer = document.querySelector("#footer-ar");
+        const sceneEl = document.querySelector("a-scene");
+
+        startButton.addEventListener('click', () => {
+            ui.style.display = "none";
+            footer.style.display = "block";
+            
+            // Inicia o vídeo mudo para "aquecer" o player
+            video.play().then(() => {
+                video.pause();
+                video.muted = false; // Desmuta após a interação do clique
+                sceneEl.systems["mindar-image-system"].start();
+            }).catch(e => {
+                console.log("Erro ao iniciar:", e);
+                sceneEl.systems["mindar-image-system"].start();
+            });
+        });
+
+        const targetEntity = document.querySelector("#target");
+        
+        targetEntity.addEventListener("targetFound", () => {
+            video.play();
+        });
+
+        targetEntity.addEventListener("targetLost", () => {
+            video.pause();
+        });
+    </script>
+</body>
+</html>
