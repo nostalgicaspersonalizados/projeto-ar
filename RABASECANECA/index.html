@@ -13,57 +13,62 @@
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
 
-        /* TELA INICIAL */
         #ui { 
             position: fixed; inset: 0; z-index: 1000; 
             display: flex; flex-direction: column; align-items: center; 
             justify-content: center; color: #fff; text-align: center; 
-            padding: 20px;
+            padding: 20px; overflow: hidden;
         }
 
         .fundo-desfocado {
             position: absolute; inset: 0; z-index: -2; 
-            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
-            /* Se tiver a imagem de fundo, descomente a linha abaixo: */
-            /* background-image: url('./fundotema.png'); background-size: cover; filter: blur(8px); */
+            background-color: #2e1a47;
+            background-image: url('./fundotema.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover; 
+            filter: blur(8px);
+            transform: scale(1.1); 
+        }
+
+        #ui::before {
+            content: ""; position: absolute; inset: 0; 
+            z-index: -1; background: rgba(0, 0, 0, 0.7);
         }
 
         .conteudo { z-index: 1; display: flex; flex-direction: column; align-items: center; }
-        .img-logo { max-width: 180px; margin-bottom: 25px; filter: drop-shadow(0 0 8px var(--cor-primaria)); }
+        .img-logo { max-width: 200px; margin-bottom: 25px; filter: drop-shadow(0 0 10px rgba(140, 82, 255, 0.5)); }
 
         .instrucoes { 
-            background: rgba(255, 255, 255, 0.05); padding: 20px; 
-            border-radius: 15px; margin-bottom: 30px; 
-            border: 1px solid rgba(140, 82, 255, 0.3);
-            max-width: 260px; backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.07); padding: 20px; 
+            border-radius: 20px; margin-bottom: 30px; 
+            border: 1px solid rgba(140, 82, 255, 0.4);
+            max-width: 280px; backdrop-filter: blur(4px);
         }
 
-        .passo { font-size: 15px; margin: 10px 0; display: flex; align-items: center; text-align: left; }
+        .passo { font-size: 16px; margin: 12px 0; display: flex; align-items: center; text-align: left; }
         .numero { 
-            background: var(--cor-primaria); width: 20px; height: 20px; 
+            background: var(--cor-primaria); width: 22px; height: 22px; 
             border-radius: 50%; margin-right: 12px; 
             display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 11px; flex-shrink: 0;
+            font-weight: bold; font-size: 12px; flex-shrink: 0;
         }
 
         button { 
-            padding: 16px 40px; font-size: 16px; 
+            padding: 16px 45px; font-size: 18px; 
             background: var(--cor-primaria); color: #fff; 
-            border: none; border-radius: 30px; cursor: pointer; 
-            font-weight: bold; box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
-            transition: 0.3s;
+            border: none; border-radius: 35px; cursor: pointer; 
+            font-weight: bold; box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
         }
-        button:active { transform: scale(0.95); }
 
         #footer-ar { 
-            position: fixed; bottom: 20px; width: 100%; 
+            position: fixed; bottom: 30px; width: 100%; 
             text-align: center; z-index: 999; display: none; 
-            color: var(--cor-primaria); font-size: 10px; font-weight: bold;
-            text-shadow: 0 1px 3px #000;
         }
+        .mkt { font-size: 11px; font-weight: bold; color: var(--cor-primaria); text-shadow: 0 0 10px #000; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div id="ui">
         <div class="fundo-desfocado"></div>
@@ -71,14 +76,16 @@
             <img src="./NOSTÁLGICAS.png" class="img-logo" alt="Nostálgicas">
             <div class="instrucoes">
                 <div class="passo"><span class="numero">1</span> Clique em Iniciar</div>
-                <div class="passo"><span class="numero">2</span> Autorize a câmera</div>
+                <div class="passo"><span class="numero">2</span> Permita a câmera</div>
                 <div class="passo"><span class="numero">3</span> Aponte para a caneca</div>
             </div>
             <button id="startButton">INICIAR AGORA</button>
         </div>
     </div>
 
-    <div id="footer-ar">🎥 Marque @nostalgicas.personalizados</div>
+    <div id="footer-ar">
+        <div class="mkt">🎥 Marque @nostalgicas.personalizados</div>
+    </div>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
@@ -86,7 +93,7 @@
         device-orientation-permission-ui="enabled: false">
         
         <a-assets>
-            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+            <video id="vid" src="./vidiobts.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -96,7 +103,8 @@
                      width="1" 
                      height="1.78" 
                      position="0 0 0.05" 
-                     rotation="0 0 0">
+                     rotation="0 0 0"
+                     material="shader: flat; transparent: true;">
             </a-video>
         </a-entity>
     </a-scene>
@@ -112,19 +120,26 @@
             ui.style.display = "none";
             footer.style.display = "block";
             
-            // Tenta dar play e pause rápido para "acordar" o áudio no celular
+            // Inicia o vídeo mudo para destravar o player no celular
             video.play().then(() => {
                 video.pause();
-                video.muted = false;
+                video.muted = false; 
                 sceneEl.systems["mindar-image-system"].start();
-            }).catch(() => {
+            }).catch(e => {
+                console.log("Erro ao iniciar:", e);
                 sceneEl.systems["mindar-image-system"].start();
             });
         });
 
         const targetEntity = document.querySelector("#target");
-        targetEntity.addEventListener("targetFound", () => video.play());
-        targetEntity.addEventListener("targetLost", () => video.pause());
+        
+        targetEntity.addEventListener("targetFound", () => {
+            video.play();
+        });
+
+        targetEntity.addEventListener("targetLost", () => {
+            video.pause();
+        });
     </script>
 </body>
 </html>
